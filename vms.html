@@ -1,0 +1,21 @@
+<html><head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Visitor Management System</title> 
+    <link rel="stylesheet" href="style.css"> 
+   </head> 
+   <body> 
+    <div class="container"> 
+     <h1>Visitor Management System</h1> <!-- Login Form --> 
+     <div id="loginForm"> <label for="visitorId">Visitor ID:</label> 
+      <input type="text" id="visitorId" placeholder="Enter your ID"> <button onclick="login()">Login</button> 
+     </div> <!-- Dashboard --> 
+     <div id="dashboard" style="display: none;"> 
+      <h2>Welcome, <span id="visitorName"></span>!</h2> <label for="meetName">Whom to Meet:</label> 
+      <input type="text" id="meetName" placeholder="Enter name"> <label for="purpose">Purpose of Meeting:</label> 
+      <input type="text" id="purpose" placeholder="Enter purpose"> <button onclick="scheduleMeeting()">Schedule Meeting</button> <button onclick="logout()">Logout</button> 
+     </div> 
+    </div> 
+    <script src="script.js"></script> 
+   
+  </body></html>
