@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #87CEEB, #4682B4);
+            transition: background 0.5s ease;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin-top: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            padding: 15px 25px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .weather-info {
+            text-align: center;
+            display: none;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .weather-info.show {
+            display: block;
+        }
+
+        .temperature {
+            font-size: 4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .temperature::after {
+            content: "°C";
+            font-size: 0.5em;
+            position: absolute;
+            top: 10px;
+            right: -25px;
+        }
+
+        .location {
+            font-size: 1.5em;
+            color: #34495e;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .condition {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .weather-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .additional-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-card span {
+            display: block;
+            color: #3498db;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⛅ Weather App</h1>
+        <div class="input-group">
+            <input type="text" id="locationInput" placeholder="Enter city name...">
+            <button onclick="getWeather()">Search</button>
+        </div>
+        <div class="error" id="errorMessage"></div>
+        <div class="weather-info" id="weatherInfo">
+            <div class="weather-icon" id="weatherIcon"></div>
+            <div class="location" id="locationName"></div>
+            <div class="temperature" id="temperature"></div>
+            <div class="condition" id="condition"></div>
+            <div class="additional-info">
+                <div class="info-card">
+                    <span id="feelsLike"></span>
+                    Feels like
+                </div>
+                <div class="info-card">
+                    <span id="humidity"></span>
+                    Humidity
+                </div>
+                <div class="info-card">
+                    <span id="windSpeed"></span>
+                    Wind speed
+                </div>
+                <div class="info-card">
+                    <span id="uvIndex"></span>
+                    UV Index
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const weatherIcons = {
+            'Sunny': '☀',
+            'Clear': '✨',
+            'Cloudy': '☁',
+            'Overcast': '🌫',
+            'Mist': '🌫',
+            'Rain': '🌧',
+            'Drizzle': '🌦',
+            'Thunderstorm': '⛈',
+            'Snow': '❄',
+            'Fog': '🌁'
+        };
+
+        async function getWeather() {
+            const locationInput = document.getElementById('locationInput').value;
+            const weatherInfo = document.getElementById('weatherInfo');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Clear previous results
+            errorMessage.classList.remove('show');
+            weatherInfo.classList.remove('show');
+
+            if (!locationInput) {
+                showError('Please enter a location');
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=7ff8f2505eb64b0fb0c42311250302&q=${encodeURIComponent(locationInput)}&aqi=yes`);
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                // Update weather information
+                document.getElementById('locationName').textContent = `${data.location.name}, ${data.location.country}`;
+                document.getElementById('temperature').textContent = data.current.temp_c;
+                document.getElementById('condition').textContent = data.current.condition.text;
+                document.getElementById('feelsLike').textContent = `${data.current.feelslike_c}°C`;
+                document.getElementById('humidity').textContent = `${data.current.humidity}%`;
+                document.getElementById('windSpeed').textContent = `${data.current.wind_kph} km/h`;
+                document.getElementById('uvIndex').textContent = data.current.uv;
+                
+                // Set weather icon
+                const condition = data.current.condition.text;
+                const icon = weatherIcons[condition] || '🌤';
+                document.getElementById('weatherIcon').textContent = icon;
+
+                // Change background based on condition
+                setWeatherTheme(condition.toLowerCase());
+
+                weatherInfo.classList.add('show');
+            } catch (error) {
+                showError('Error: ' + error.message);
+            }
+        }
+
+        function setWeatherTheme(condition) {
+            const body = document.body;
+            let gradient = '';
+
+            if (condition.includes('sunny') || condition.includes('clear')) {
+                gradient = 'linear-gradient(135deg, #FFD700, #FF8C00)';
+            } else if (condition.includes('cloud') || condition.includes('overcast')) {
+                gradient = 'linear-gradient(135deg, #B0C4DE, #778899)';
+            } else if (condition.includes('rain') || condition.includes('drizzle')) {
+                gradient = 'linear-gradient(135deg, #4682B4, #6A5ACD)';
+            } else if (condition.includes('thunder')) {
+                gradient = 'linear-gradient(135deg, #2c3e50, #4B0082)';
+            } else if (condition.includes('snow')) {
+                gradient = 'linear-gradient(135deg, #E0FFFF, #F0F8FF)';
+            } else {
+                gradient = 'linear-gradient(135deg, #87CEEB, #4682B4)';
+            }
+
+            body.style.background = gradient;
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('locationInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                getWeather();
+            }
+        });
+    </script>
+</body>
+</html>
