@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Auto Login</title>
+  <script>
+    function login() {
+      const username = "user_id"; // enter your user_id
+      const password = "pass"; // enter your password
+      const loginUrl = "http://geckhagaria.com/login"; // change this to the actual login IP shown
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = loginUrl;
+
+      const userField = document.createElement("input");
+      userField.name = "username";
+      userField.value = username;
+      form.appendChild(userField);
+
+      const passField = document.createElement("input");
+      passField.name = "password";
+      passField.value = password;
+      form.appendChild(passField);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
+</head>
+<body onload="login()">
+  Logging in...
+</body>
+</html>
+
